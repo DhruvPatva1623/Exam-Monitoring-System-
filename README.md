@@ -1,131 +1,158 @@
-# 📊 Online Exam Monitoring System
+<h1 align="center">📊 Online Exam Monitoring System</h1>
 
-## 🚀 Overview
+<p align="center">
+  🚀 Real-Time Exam System using Java AWT, Networking & Multithreading
+</p>
 
-The **Online Exam Monitoring System** is a Java-based application that simulates a real-time online examination environment.
-It allows multiple students to submit answers simultaneously while the admin monitors responses live, evaluates results instantly, and visualizes performance using graphs.
+<hr>
 
----
+<h2>📌 Overview</h2>
+<p>
+This project simulates a <b>real-time online examination system</b> where multiple students can attempt an exam simultaneously, while the admin monitors responses live, evaluates answers instantly, and visualizes performance using graphs.
+</p>
 
-## 🎯 Key Features
+<hr>
 
-### 👨‍🎓 Student Panel
+<h2>✨ Features</h2>
 
-* Answer arithmetic-based questions
-* Navigate through questions using **Next button**
-* Auto-submit answers in real-time
-* **Close button enabled after exam completion**
-* Sends completion signal to admin
+<h3>👨‍🎓 Student Panel</h3>
+<ul>
+  <li>Answer arithmetic questions</li>
+  <li>Next button for navigation</li>
+  <li>Auto-send answers in real-time</li>
+  <li>Exam completion detection</li>
+  <li>🔴 Close button after finishing</li>
+</ul>
 
-### 🧑‍🏫 Admin Panel
+<h3>🧑‍🏫 Admin Panel</h3>
+<ul>
+  <li>📡 Live monitoring of student answers</li>
+  <li>✔ Correct / ❌ Wrong / ⏳ Not Answered display</li>
+  <li>📊 Real-time score calculation</li>
+  <li>📈 Graph visualization (bar chart)</li>
+  <li>🎉 Detects all students finished</li>
+  <li>🔴 Close button after completion</li>
+</ul>
 
-* Real-time monitoring of student responses
-* Displays:
+<hr>
 
-  * ✔ Correct answers
-  * ❌ Incorrect answers
-  * ⏳ Not attempted
-* Calculates **live scores**
-* Shows **bar graph visualization**
-* Detects when all students finish
-* Displays:
+<h2>🧠 Concepts Used</h2>
 
-  * 🎉 *Test Conducted Successfully*
-* Provides **Close button after completion**
+<table border="1" cellpadding="8">
+<tr>
+<th>Concept</th>
+<th>Usage</th>
+</tr>
 
----
+<tr>
+<td>Multithreading</td>
+<td>Handles real-time server communication</td>
+</tr>
 
-## 🧠 Concepts Used
+<tr>
+<td>UDP Networking</td>
+<td>Sends & receives student answers</td>
+</tr>
 
-| Concept                           | Usage                                              |
-| --------------------------------- | -------------------------------------------------- |
-| Multithreading                    | Handles real-time server communication             |
-| UDP Networking (`DatagramSocket`) | Sends & receives student answers                   |
-| AWT (GUI)                         | Builds interface (Frame, Button, TextArea, Canvas) |
-| Event Handling                    | Handles button clicks                              |
-| Collections (`Map`, `List`)       | Stores answers & results                           |
-| Graphics (`Canvas`)               | Draws result graph                                 |
-| Thread-safe UI (`EventQueue`)     | Prevents UI freezing                               |
+<tr>
+<td>AWT (GUI)</td>
+<td>Creates UI components</td>
+</tr>
 
----
+<tr>
+<td>Event Handling</td>
+<td>Handles button clicks</td>
+</tr>
 
-## 🔄 System Flow
+<tr>
+<td>Collections</td>
+<td>Stores answers and scores</td>
+</tr>
 
-Student → Sends Answer → Admin Receives → Stores Data →
-Evaluates → Updates GUI → Displays Graph → Tracks Completion
+<tr>
+<td>Graphics (Canvas)</td>
+<td>Draws result graph</td>
+</tr>
 
----
+<tr>
+<td>Thread-safe UI</td>
+<td>Prevents GUI freezing</td>
+</tr>
 
-## 📊 Sample Questions
+</table>
 
-* 5 + 3 = ?
-* 10 - 4 = ?
-* 6 × 2 = ?
-* 8 ÷ 2 = ?
+<hr>
 
----
+<h2>🔄 System Flow</h2>
 
-## ⚙️ How to Run
+<p align="center">
+<b>
+Student ➝ Send Answer ➝ Admin Receives ➝ Evaluate ➝ Update UI ➝ Graph ➝ Completion Check
+</b>
+</p>
 
-1. Open terminal in project folder
-2. Compile:
+<hr>
 
-   ```bash
-   javac OES.java
-   ```
-3. Run:
+<h2>📊 Sample Questions</h2>
+<ul>
+  <li>5 + 3 = ?</li>
+  <li>10 - 4 = ?</li>
+  <li>6 × 2 = ?</li>
+  <li>8 ÷ 2 = ?</li>
+</ul>
 
-   ```bash
-   java OES
-   ```
-4. Enter number of students
-5. Student windows will open automatically
+<hr>
 
----
+<h2>⚙️ How to Run</h2>
 
-## ⚠️ Important Notes
+<pre>
+javac OES.java
+java OES
+</pre>
 
-* Ensure the port (e.g., `5000`) is free before running
-* Run only **one instance** of the program at a time
-* Works on local system (`127.0.0.1`)
+<p>Enter number of students → Multiple student windows will open</p>
 
----
+<hr>
 
-## 📁 Project Structure
+<h2>⚠️ Important Notes</h2>
+<ul>
+  <li>Ensure port <b>5000</b> is free</li>
+  <li>Run only one instance at a time</li>
+  <li>Works on localhost (127.0.0.1)</li>
+</ul>
 
-* `AdminGUI` → Admin dashboard
-* `StudentGUI` → Student interface
-* `ResultCanvas` → Graph visualization
-* `OES.java` → Main file
+<hr>
 
----
+<h2>📁 Project Structure</h2>
 
-## 🎓 Learning Outcome
+<pre>
+OES.java
+ ├── AdminGUI
+ ├── StudentGUI
+ ├── ResultCanvas
+</pre>
 
-This project demonstrates:
+<hr>
 
-* Real-time system design
-* Client-server communication
-* GUI development in Java
-* Data processing & visualization
+<h2>🚀 Future Enhancements</h2>
+<ul>
+  <li>🏆 Ranking System</li>
+  <li>⏱ Timer-based exam</li>
+  <li>🌐 Multi-device support</li>
+  <li>🎨 Modern UI (Swing/JavaFX)</li>
+</ul>
 
----
+<hr>
 
-## 💡 Future Enhancements
+<h2 align="center">👨‍💻 Author</h2>
 
-* 🏆 Ranking system
-* ⏱ Timer-based exams
-* 🌐 Multi-device support
-* 🎨 Modern UI (Swing/JavaFX)
+<p align="center">
+<b>Dhruv Patva</b><br>
+💡 Java Developer | OS Enthusiast
+</p>
 
----
+<hr>
 
-## 👨‍💻 Author
-
-**Dhruv Patva**
-
----
-
-## ⭐ Acknowledgement
-
-This project is built for academic learning and demonstration of Operating System and Java concepts.
+<p align="center">
+⭐ If you like this project, consider giving it a star!
+</p>
