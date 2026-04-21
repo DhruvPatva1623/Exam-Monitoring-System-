@@ -17,26 +17,36 @@ class AdminGUI extends Frame {
     Map<Integer, Integer> scoreMap =
             Collections.synchronizedMap(new HashMap<>());
 
-    AdminGUI() {
-        setTitle("📊 Admin Dashboard");
+    Set<Integer> finishedStudents =
+            Collections.synchronizedSet(new HashSet<>());
+
+    int totalStudents;
+
+    AdminGUI(int totalStudents) {
+        this.totalStudents = totalStudents;
+
+        setTitle("Admin Dashboard");
         setSize(950, 500);
         setLayout(new BorderLayout());
 
-        // Left panel (Logs)
         logArea = new TextArea();
         logArea.setBackground(Color.black);
         logArea.setForeground(Color.green);
 
-        // Center panel (Live Result)
         resultArea = new TextArea();
         resultArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
 
-        // Right panel (Graph)
         canvas = new ResultCanvas(scoreMap);
 
         add(logArea, BorderLayout.WEST);
         add(resultArea, BorderLayout.CENTER);
-        add(canvas, BorderLayout.EAST);
+
+        Panel rightPanel = new Panel();
+        rightPanel.setLayout(new BorderLayout());
+        rightPanel.setPreferredSize(new Dimension(300, 500));
+        rightPanel.add(canvas, BorderLayout.CENTER);
+
+        add(rightPanel, BorderLayout.EAST);
 
         setVisible(true);
 
@@ -68,11 +78,22 @@ class AdminGUI extends Frame {
 
                     System.out.println("Received: " + msg);
 
-                    // Safe UI log update
+                    // Handle FINISHED signal
+                    if (msg.startsWith("FINISHED")) {
+                        int id = Integer.parseInt(msg.split(":")[1]);
+                        finishedStudents.add(id);
+
+                        EventQueue.invokeLater(() ->
+                                logArea.append("✅ Student " + id + " finished exam\n"));
+
+                        checkAllFinished();
+                        continue;
+                    }
+
                     EventQueue.invokeLater(() ->
                             logArea.append("📩 " + msg + "\n"));
 
-                    // Parse
+                    // Parse answer
                     String[] parts = msg.split(":");
                     int id = Integer.parseInt(parts[0].split(" ")[1]);
                     int ans = Integer.parseInt(parts[1].trim());
@@ -138,13 +159,29 @@ class AdminGUI extends Frame {
             newScores.put(id, score);
         }
 
-        // SAFE UI UPDATE
         EventQueue.invokeLater(() -> {
             resultArea.setText(resultText.toString());
             scoreMap.clear();
             scoreMap.putAll(newScores);
             canvas.repaint();
         });
+    }
+
+    void checkAllFinished() {
+        if (finishedStudents.size() == totalStudents) {
+            EventQueue.invokeLater(() -> {
+                resultArea.append("\n🎉 ALL STUDENTS FINISHED\n");
+                resultArea.append("✅ Test Conducted Successfully\n");
+
+                Button closeBtn = new Button("Close Admin Panel");
+                closeBtn.setBackground(Color.red);
+
+                closeBtn.addActionListener(e -> dispose());
+
+                add(closeBtn, BorderLayout.SOUTH);
+                validate();
+            });
+        }
     }
 }
 
@@ -162,9 +199,12 @@ class ResultCanvas extends Canvas {
 
         int x = 40;
 
+        g.setColor(Color.gray);
+        g.drawRect(10, 10, 260, 350);
+
         for (Map.Entry<Integer, Integer> entry : scores.entrySet()) {
 
-            int height = entry.getValue() * 40;
+            int height = entry.getValue() * 60;
 
             g.setColor(Color.blue);
             g.fillRect(x, 300 - height, 50, height);
@@ -183,7 +223,7 @@ class StudentGUI extends Frame implements ActionListener {
 
     Label titleLabel, questionLabel;
     TextField answerField;
-    Button nextBtn;
+    Button nextBtn, closeBtn;
 
     int studentId;
     int qIndex = 0;
@@ -198,9 +238,9 @@ class StudentGUI extends Frame implements ActionListener {
     StudentGUI(int id) {
         this.studentId = id;
 
-        setTitle("🎓 Student " + id);
-        setSize(320, 250);
-        setLayout(new GridLayout(5,1,10,10));
+        setTitle("Student " + id);
+        setSize(320, 300);
+        setLayout(new GridLayout(6,1,10,10));
 
         titleLabel = new Label("Online Exam", Label.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
@@ -213,12 +253,18 @@ class StudentGUI extends Frame implements ActionListener {
         nextBtn = new Button("Next");
         nextBtn.setBackground(Color.green);
 
+        closeBtn = new Button("Close");
+        closeBtn.setBackground(Color.red);
+        closeBtn.setEnabled(false);
+
         add(titleLabel);
         add(questionLabel);
         add(answerField);
         add(nextBtn);
+        add(closeBtn);
 
         nextBtn.addActionListener(this);
+        closeBtn.addActionListener(e -> dispose());
 
         setVisible(true);
 
@@ -233,7 +279,6 @@ class StudentGUI extends Frame implements ActionListener {
         try {
 
             String input = answerField.getText();
-
             if (input.isEmpty()) return;
 
             int ans = Integer.parseInt(input);
@@ -242,8 +287,6 @@ class StudentGUI extends Frame implements ActionListener {
             InetAddress address = InetAddress.getByName("127.0.0.1");
 
             String msg = "Student " + studentId + ": " + ans;
-
-            System.out.println("Sending: " + msg);
 
             byte[] buffer = msg.getBytes();
 
@@ -260,12 +303,34 @@ class StudentGUI extends Frame implements ActionListener {
             if (qIndex < questions.length) {
                 questionLabel.setText(questions[qIndex]);
             } else {
-                questionLabel.setText("✅ Exam Finished!");
+                questionLabel.setText("Exam Finished!");
                 nextBtn.setEnabled(false);
+                closeBtn.setEnabled(true);
+                sendFinishSignal();
             }
 
         } catch (Exception ex) {
             System.out.println("Invalid Input");
+        }
+    }
+
+    void sendFinishSignal() {
+        try {
+            DatagramSocket socket = new DatagramSocket();
+            InetAddress address = InetAddress.getByName("127.0.0.1");
+
+            String msg = "FINISHED:" + studentId;
+
+            byte[] buffer = msg.getBytes();
+
+            DatagramPacket packet =
+                    new DatagramPacket(buffer, buffer.length, address, 5000);
+
+            socket.send(packet);
+            socket.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
@@ -274,13 +339,16 @@ class StudentGUI extends Frame implements ActionListener {
 public class OES {
     public static void main(String[] args) {
 
-        new AdminGUI();
-
         String input = javax.swing.JOptionPane.showInputDialog("Enter number of students:");
         int n = Integer.parseInt(input);
+
+        new AdminGUI(n);
 
         for (int i = 1; i <= n; i++) {
             new StudentGUI(i);
         }
     }
 }
+//git rm -r --cached "D&Y" "JavaProject" "M&D"
+//git commit -m "Removed D&Y folder"
+//git push origin main
